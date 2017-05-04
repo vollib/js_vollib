@@ -7,7 +7,7 @@
   var Helpers;
 
   Helpers = (function() {
-    var ONE_OVER_SQRT_TWO_PI, _brent, distribution, mean, stdev;
+    var ONE_OVER_SQRT_TWO_PI, _brent;
 
     function Helpers() {}
 
@@ -16,12 +16,6 @@
     _brent = new Brent(1e-15);
 
     _brent.maxIter = 1000;
-
-    mean = 0.0;
-
-    stdev = 1.0;
-
-    distribution = gaussian(mean, stdev);
 
     Helpers.binary_flag = {
       'c': 1,
@@ -37,6 +31,9 @@
     };
 
     Helpers.norm_cdf = function(x) {
+      var mean, stdev;
+      mean = 0.0;
+      stdev = 1.0;
       return jStat.normal.cdf(x, mean, stdev);
     };
 

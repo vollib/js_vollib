@@ -721,6 +721,42 @@
 
 }).call(this);
 (function () {
+    QUnit.module("js_vollib.black_scholes.test_black_scholes");
+
+    var black_scholes = js_vollib.black_scholes.black_scholes;
+
+    var EPSILON = 0.000001;
+
+    QUnit.test("testBlack_scholes_call", function () {
+        assertEquals(black_scholes('c', 100, 90, 0.5, 0.01, 0.2), 12.111581435, EPSILON);
+    });
+
+    QUnit.test("testBlack_scholes_put", function () {
+        assertEquals(black_scholes('p', 100, 90, 0.5, 0.01, 0.2), 1.66270456231, EPSILON);
+    });
+
+}).call(this);
+(function () {
+    QUnit.module("js_vollib.black_scholes.test_implied_volatility");
+
+    var black_scholes = js_vollib.black_scholes.black_scholes;
+    var implied_volatility = js_vollib.black_scholes.implied_volatility.implied_volatility;
+
+    QUnit.test("test_implied_volatility", function () {
+        var S = 100, K = 100, sigma = 0.2, r = 0.01, flag = 'c', t = 0.5;
+
+        var price = black_scholes(flag, S, K, t, r, sigma);
+        var iv = implied_volatility(price, S, K, t, r, flag);
+
+        var expected_price = 5.87602423383;
+        var expected_iv = 0.2;
+
+        assertEquals(price, expected_price, 0.00001);
+        assertEquals(iv, expected_iv, 0.00001);
+    });
+
+}).call(this);
+(function () {
     QUnit.module("js_vollib.black.test_black");
 
     var black = js_vollib.black;
@@ -860,42 +896,6 @@
         var expected_iv = 0.232323232;
 
         assertEquals(price, expected_price, 0.0001);
-        assertEquals(iv, expected_iv, 0.00001);
-    });
-
-}).call(this);
-(function () {
-    QUnit.module("js_vollib.black_scholes.test_black_scholes");
-
-    var black_scholes = js_vollib.black_scholes.black_scholes;
-
-    var EPSILON = 0.000001;
-
-    QUnit.test("testBlack_scholes_call", function () {
-        assertEquals(black_scholes('c', 100, 90, 0.5, 0.01, 0.2), 12.111581435, EPSILON);
-    });
-
-    QUnit.test("testBlack_scholes_put", function () {
-        assertEquals(black_scholes('p', 100, 90, 0.5, 0.01, 0.2), 1.66270456231, EPSILON);
-    });
-
-}).call(this);
-(function () {
-    QUnit.module("js_vollib.black_scholes.test_implied_volatility");
-
-    var black_scholes = js_vollib.black_scholes.black_scholes;
-    var implied_volatility = js_vollib.black_scholes.implied_volatility.implied_volatility;
-
-    QUnit.test("test_implied_volatility", function () {
-        var S = 100, K = 100, sigma = 0.2, r = 0.01, flag = 'c', t = 0.5;
-
-        var price = black_scholes(flag, S, K, t, r, sigma);
-        var iv = implied_volatility(price, S, K, t, r, flag);
-
-        var expected_price = 5.87602423383;
-        var expected_iv = 0.2;
-
-        assertEquals(price, expected_price, 0.00001);
         assertEquals(iv, expected_iv, 0.00001);
     });
 
@@ -1682,114 +1682,6 @@
 
 }).call(this);
 (function () {
-    QUnit.module("js_vollib.black.greeks.test_analytical");
-
-    var black = js_vollib.black.black;
-    var analytical = js_vollib.black.greeks.analytical;
-
-    var EPSILON = 0.000001;
-
-    QUnit.test("test_delta", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var delta_calc = analytical.delta(flag, F, K, t, r, sigma);
-        assertEquals(delta_calc, 0.45107017482201828, EPSILON);
-    });
-
-    QUnit.test("test_theta", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
-        assertEquals(annual_theta_calc, -0.00816236877462, EPSILON);
-
-        flag = 'p';
-        annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
-        assertEquals(annual_theta_calc, -0.00802799155312, EPSILON);
-    });
-
-    QUnit.test("test_gamma", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var gamma_calc = analytical.gamma(flag, F, K, t, r, sigma);
-        assertEquals(gamma_calc, 0.0640646705882, EPSILON);
-    });
-
-    QUnit.test("test_vega", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var vega_calc = analytical.vega(flag, F, K, t, r, sigma);
-        assertEquals(vega_calc, 0.118317785624, EPSILON);
-    });
-
-    QUnit.test("test_rho", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var rho_calc = analytical.rho(flag, F, K, t, r, sigma);
-        assertEquals(rho_calc, -0.0074705380059582258, EPSILON);
-
-        flag = 'p';
-        rho_calc = analytical.rho(flag, F, K, t, r, sigma);
-        assertEquals(rho_calc, -0.011243286001308292, EPSILON);
-    });
-
-}).call(this);
-(function () {
-    QUnit.module("js_vollib.black.greeks.test_numerical");
-
-    var analytical = js_vollib.black.greeks.analytical;
-    var numerical = js_vollib.black.greeks.numerical;
-
-    var EPSILON = 0.0001;
-
-    var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2;
-
-    QUnit.test("test_call", function () {
-        var flag = 'c';
-
-        var adelta = analytical.delta(flag, F, K, t, r, sigma);
-        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
-        assertEquals(ndelta, adelta, EPSILON);
-
-        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
-        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
-        assertEquals(ngamma, agamma, EPSILON);
-
-        var arho = analytical.rho(flag, F, K, t, r, sigma);
-        var nrho = numerical.rho(flag, F, K, t, r, sigma);
-        assertEquals(nrho, arho, EPSILON);
-
-        var avega = analytical.vega(flag, F, K, t, r, sigma);
-        var nvega = numerical.vega(flag, F, K, t, r, sigma);
-        assertEquals(nvega, avega, EPSILON);
-
-        var atheta = analytical.theta(flag, F, K, t, r, sigma);
-        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
-        assertEquals(ntheta, atheta, EPSILON);
-
-    });
-
-    QUnit.test("test_put", function () {
-        var flag = 'p';
-
-        var adelta = analytical.delta(flag, F, K, t, r, sigma);
-        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
-        assertEquals(ndelta, adelta, EPSILON);
-
-        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
-        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
-        assertEquals(ngamma, agamma, EPSILON);
-
-        var arho = analytical.rho(flag, F, K, t, r, sigma);
-        var nrho = numerical.rho(flag, F, K, t, r, sigma);
-        assertEquals(nrho, arho, EPSILON);
-
-        var avega = analytical.vega(flag, F, K, t, r, sigma);
-        var nvega = numerical.vega(flag, F, K, t, r, sigma);
-        assertEquals(nvega, avega, EPSILON);
-
-        var atheta = analytical.theta(flag, F, K, t, r, sigma);
-        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
-        assertEquals(ntheta, atheta, EPSILON);
-
-    });
-
-}).call(this);
-(function () {
     QUnit.module("js_vollib.black_scholes.greeks.test_analytical");
 
     var black_scholes = js_vollib.black_scholes.black_scholes;
@@ -1914,6 +1806,114 @@
         var rho_calc = numerical.rho(flag, S, K, t, r, sigma);
         var rho_text_book = 0.0891;
         assertEquals(rho_calc, rho_text_book, 0.0001);
+    });
+
+}).call(this);
+(function () {
+    QUnit.module("js_vollib.black.greeks.test_analytical");
+
+    var black = js_vollib.black.black;
+    var analytical = js_vollib.black.greeks.analytical;
+
+    var EPSILON = 0.000001;
+
+    QUnit.test("test_delta", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var delta_calc = analytical.delta(flag, F, K, t, r, sigma);
+        assertEquals(delta_calc, 0.45107017482201828, EPSILON);
+    });
+
+    QUnit.test("test_theta", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
+        assertEquals(annual_theta_calc, -0.00816236877462, EPSILON);
+
+        flag = 'p';
+        annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
+        assertEquals(annual_theta_calc, -0.00802799155312, EPSILON);
+    });
+
+    QUnit.test("test_gamma", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var gamma_calc = analytical.gamma(flag, F, K, t, r, sigma);
+        assertEquals(gamma_calc, 0.0640646705882, EPSILON);
+    });
+
+    QUnit.test("test_vega", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var vega_calc = analytical.vega(flag, F, K, t, r, sigma);
+        assertEquals(vega_calc, 0.118317785624, EPSILON);
+    });
+
+    QUnit.test("test_rho", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var rho_calc = analytical.rho(flag, F, K, t, r, sigma);
+        assertEquals(rho_calc, -0.0074705380059582258, EPSILON);
+
+        flag = 'p';
+        rho_calc = analytical.rho(flag, F, K, t, r, sigma);
+        assertEquals(rho_calc, -0.011243286001308292, EPSILON);
+    });
+
+}).call(this);
+(function () {
+    QUnit.module("js_vollib.black.greeks.test_numerical");
+
+    var analytical = js_vollib.black.greeks.analytical;
+    var numerical = js_vollib.black.greeks.numerical;
+
+    var EPSILON = 0.0001;
+
+    var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2;
+
+    QUnit.test("test_call", function () {
+        var flag = 'c';
+
+        var adelta = analytical.delta(flag, F, K, t, r, sigma);
+        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
+        assertEquals(ndelta, adelta, EPSILON);
+
+        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
+        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
+        assertEquals(ngamma, agamma, EPSILON);
+
+        var arho = analytical.rho(flag, F, K, t, r, sigma);
+        var nrho = numerical.rho(flag, F, K, t, r, sigma);
+        assertEquals(nrho, arho, EPSILON);
+
+        var avega = analytical.vega(flag, F, K, t, r, sigma);
+        var nvega = numerical.vega(flag, F, K, t, r, sigma);
+        assertEquals(nvega, avega, EPSILON);
+
+        var atheta = analytical.theta(flag, F, K, t, r, sigma);
+        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
+        assertEquals(ntheta, atheta, EPSILON);
+
+    });
+
+    QUnit.test("test_put", function () {
+        var flag = 'p';
+
+        var adelta = analytical.delta(flag, F, K, t, r, sigma);
+        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
+        assertEquals(ndelta, adelta, EPSILON);
+
+        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
+        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
+        assertEquals(ngamma, agamma, EPSILON);
+
+        var arho = analytical.rho(flag, F, K, t, r, sigma);
+        var nrho = numerical.rho(flag, F, K, t, r, sigma);
+        assertEquals(nrho, arho, EPSILON);
+
+        var avega = analytical.vega(flag, F, K, t, r, sigma);
+        var nvega = numerical.vega(flag, F, K, t, r, sigma);
+        assertEquals(nvega, avega, EPSILON);
+
+        var atheta = analytical.theta(flag, F, K, t, r, sigma);
+        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
+        assertEquals(ntheta, atheta, EPSILON);
+
     });
 
 }).call(this);
@@ -2046,59 +2046,6 @@
 
 }).call(this);
 (function () {
-    QUnit.module("js_vollib.js_ref.black_scholes.test_black_scholes");
-
-    var black_scholes = js_vollib.js_ref.black_scholes;
-
-    QUnit.test("test_d1", function () {
-        var S = 42, K = 40, r = 0.10, sigma = 0.20, t = 0.5;
-        var calculated_d1 = black_scholes.d1(S, K, t, r, sigma);
-        var text_book_d1 = 0.7693;
-        assertEquals(calculated_d1, text_book_d1, 0.0001);
-    });
-
-    QUnit.test("test_d2", function () {
-        var S = 42, K = 40, r = 0.10, sigma = 0.20, t = 0.5;
-        var calculated_d2 = black_scholes.d2(S, K, t, r, sigma);
-        var text_book_d2 = 0.6278;
-        assertEquals(calculated_d2, text_book_d2, 0.0001);
-    });
-
-    QUnit.test("test_black_scholes", function () {
-        var S = 60, K = 65, t = 0.25, r = 0.08, sigma = 0.3;
-        var actual = black_scholes.black_scholes('c', S, K, t, r, sigma);
-        var expected = 2.13336844492;
-        assertEquals(actual, expected, 1e-11);
-    });
-
-}).call(this);
-(function () {
-    QUnit.module("js_vollib.js_ref.black_scholes.test_implied_volatility");
-
-    var black_scholes = js_vollib.js_ref.black_scholes;
-
-    QUnit.test("test_implied_volatility_put", function () {
-        var S = 100.0, K = 1000.0, sigma = 0.3, flag = 'p', t = 0.5, r = 0.05;
-        var price = black_scholes.black_scholes(flag, S, K, t, r, sigma);
-        var iv = black_scholes.implied_volatility.implied_volatility(price, S, K, t, r, flag);
-
-        var expected_price = 875.309912028;
-        assertEquals(price, expected_price, 0.00001);
-        assertEquals(iv, 0.0, 01);
-    });
-
-    QUnit.test("test_implied_volatility_call", function () {
-        var S = 100, K = 100, sigma = 0.2, flag = 'c', t = 0.5, r = 0.01;
-        var price = black_scholes.black_scholes(flag, S, K, t, r, sigma);
-        var iv = black_scholes.implied_volatility.implied_volatility(price, S, K, t, r, flag);
-
-        var expected_price = 5.87602423383;
-        assertEquals(price, expected_price, 0.00001);
-        assertEquals(iv, 0.2, 0.01);
-    });
-
-}).call(this);
-(function () {
     QUnit.module("js_vollib.js_ref.black.test_black");
 
     var black = js_vollib.js_ref.black;
@@ -2158,6 +2105,59 @@
         var expected_price = 5.5811067246;
         assertEquals(price, expected_price, 0.00001);
         assertEquals(sigma_out, sigma_in, 0.00001);
+    });
+
+}).call(this);
+(function () {
+    QUnit.module("js_vollib.js_ref.black_scholes.test_black_scholes");
+
+    var black_scholes = js_vollib.js_ref.black_scholes;
+
+    QUnit.test("test_d1", function () {
+        var S = 42, K = 40, r = 0.10, sigma = 0.20, t = 0.5;
+        var calculated_d1 = black_scholes.d1(S, K, t, r, sigma);
+        var text_book_d1 = 0.7693;
+        assertEquals(calculated_d1, text_book_d1, 0.0001);
+    });
+
+    QUnit.test("test_d2", function () {
+        var S = 42, K = 40, r = 0.10, sigma = 0.20, t = 0.5;
+        var calculated_d2 = black_scholes.d2(S, K, t, r, sigma);
+        var text_book_d2 = 0.6278;
+        assertEquals(calculated_d2, text_book_d2, 0.0001);
+    });
+
+    QUnit.test("test_black_scholes", function () {
+        var S = 60, K = 65, t = 0.25, r = 0.08, sigma = 0.3;
+        var actual = black_scholes.black_scholes('c', S, K, t, r, sigma);
+        var expected = 2.13336844492;
+        assertEquals(actual, expected, 1e-11);
+    });
+
+}).call(this);
+(function () {
+    QUnit.module("js_vollib.js_ref.black_scholes.test_implied_volatility");
+
+    var black_scholes = js_vollib.js_ref.black_scholes;
+
+    QUnit.test("test_implied_volatility_put", function () {
+        var S = 100.0, K = 1000.0, sigma = 0.3, flag = 'p', t = 0.5, r = 0.05;
+        var price = black_scholes.black_scholes(flag, S, K, t, r, sigma);
+        var iv = black_scholes.implied_volatility.implied_volatility(price, S, K, t, r, flag);
+
+        var expected_price = 875.309912028;
+        assertEquals(price, expected_price, 0.00001);
+        assertEquals(iv, 0.0, 01);
+    });
+
+    QUnit.test("test_implied_volatility_call", function () {
+        var S = 100, K = 100, sigma = 0.2, flag = 'c', t = 0.5, r = 0.01;
+        var price = black_scholes.black_scholes(flag, S, K, t, r, sigma);
+        var iv = black_scholes.implied_volatility.implied_volatility(price, S, K, t, r, flag);
+
+        var expected_price = 5.87602423383;
+        assertEquals(price, expected_price, 0.00001);
+        assertEquals(iv, 0.2, 0.01);
     });
 
 }).call(this);
@@ -2661,6 +2661,114 @@
 
 }).call(this);
 (function () {
+    QUnit.module("js_vollib.js_ref.black.greeks.test_analytical");
+
+    var black = js_vollib.js_ref.black.black;
+    var analytical = js_vollib.js_ref.black.greeks.analytical;
+
+    var EPSILON = 0.000001;
+
+    QUnit.test("test_delta", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var delta_calc = analytical.delta(flag, F, K, t, r, sigma);
+        assertEquals(delta_calc, 0.45107017482201828, EPSILON);
+    });
+
+    QUnit.test("test_theta", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
+        assertEquals(annual_theta_calc, -0.00816236877462, EPSILON);
+
+        flag = 'p';
+        annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
+        assertEquals(annual_theta_calc, -0.00802799155312, EPSILON);
+    });
+
+    QUnit.test("test_gamma", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var gamma_calc = analytical.gamma(flag, F, K, t, r, sigma);
+        assertEquals(gamma_calc, 0.0640646705882, EPSILON);
+    });
+
+    QUnit.test("test_vega", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var vega_calc = analytical.vega(flag, F, K, t, r, sigma);
+        assertEquals(vega_calc, 0.118317785624, EPSILON);
+    });
+
+    QUnit.test("test_rho", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var rho_calc = analytical.rho(flag, F, K, t, r, sigma);
+        assertEquals(rho_calc, -0.0074705380059582258, EPSILON);
+
+        flag = 'p';
+        rho_calc = analytical.rho(flag, F, K, t, r, sigma);
+        assertEquals(rho_calc, -0.011243286001308292, EPSILON);
+    });
+
+}).call(this);
+(function () {
+    QUnit.module("js_vollib.js_ref.black.greeks.test_numerical");
+
+    var analytical = js_vollib.js_ref.black.greeks.analytical;
+    var numerical = js_vollib.js_ref.black.greeks.numerical;
+
+    var EPSILON = 0.0001;
+
+    var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2;
+
+    QUnit.test("test_call", function () {
+        var flag = 'c';
+
+        var adelta = analytical.delta(flag, F, K, t, r, sigma);
+        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
+        assertEquals(ndelta, adelta, EPSILON);
+
+        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
+        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
+        assertEquals(ngamma, agamma, EPSILON);
+
+        var arho = analytical.rho(flag, F, K, t, r, sigma);
+        var nrho = numerical.rho(flag, F, K, t, r, sigma);
+        assertEquals(nrho, arho, EPSILON);
+
+        var avega = analytical.vega(flag, F, K, t, r, sigma);
+        var nvega = numerical.vega(flag, F, K, t, r, sigma);
+        assertEquals(nvega, avega, EPSILON);
+
+        var atheta = analytical.theta(flag, F, K, t, r, sigma);
+        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
+        assertEquals(ntheta, atheta, EPSILON);
+
+    });
+
+    QUnit.test("test_put", function () {
+        var flag = 'p';
+
+        var adelta = analytical.delta(flag, F, K, t, r, sigma);
+        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
+        assertEquals(ndelta, adelta, EPSILON);
+
+        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
+        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
+        assertEquals(ngamma, agamma, EPSILON);
+
+        var arho = analytical.rho(flag, F, K, t, r, sigma);
+        var nrho = numerical.rho(flag, F, K, t, r, sigma);
+        assertEquals(nrho, arho, EPSILON);
+
+        var avega = analytical.vega(flag, F, K, t, r, sigma);
+        var nvega = numerical.vega(flag, F, K, t, r, sigma);
+        assertEquals(nvega, avega, EPSILON);
+
+        var atheta = analytical.theta(flag, F, K, t, r, sigma);
+        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
+        assertEquals(ntheta, atheta, EPSILON);
+
+    });
+
+}).call(this);
+(function () {
     QUnit.module("js_vollib.js_ref.black_scholes.greeks.test_analytical");
 
     var black_scholes = js_vollib.js_ref.black_scholes.black_scholes;
@@ -2785,114 +2893,6 @@
         var rho_calc = numerical.rho(flag, S, K, t, r, sigma);
         var rho_text_book = 0.0891;
         assertEquals(rho_calc, rho_text_book, 0.0001);
-    });
-
-}).call(this);
-(function () {
-    QUnit.module("js_vollib.js_ref.black.greeks.test_analytical");
-
-    var black = js_vollib.js_ref.black.black;
-    var analytical = js_vollib.js_ref.black.greeks.analytical;
-
-    var EPSILON = 0.000001;
-
-    QUnit.test("test_delta", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var delta_calc = analytical.delta(flag, F, K, t, r, sigma);
-        assertEquals(delta_calc, 0.45107017482201828, EPSILON);
-    });
-
-    QUnit.test("test_theta", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
-        assertEquals(annual_theta_calc, -0.00816236877462, EPSILON);
-
-        flag = 'p';
-        annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
-        assertEquals(annual_theta_calc, -0.00802799155312, EPSILON);
-    });
-
-    QUnit.test("test_gamma", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var gamma_calc = analytical.gamma(flag, F, K, t, r, sigma);
-        assertEquals(gamma_calc, 0.0640646705882, EPSILON);
-    });
-
-    QUnit.test("test_vega", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var vega_calc = analytical.vega(flag, F, K, t, r, sigma);
-        assertEquals(vega_calc, 0.118317785624, EPSILON);
-    });
-
-    QUnit.test("test_rho", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var rho_calc = analytical.rho(flag, F, K, t, r, sigma);
-        assertEquals(rho_calc, -0.0074705380059582258, EPSILON);
-
-        flag = 'p';
-        rho_calc = analytical.rho(flag, F, K, t, r, sigma);
-        assertEquals(rho_calc, -0.011243286001308292, EPSILON);
-    });
-
-}).call(this);
-(function () {
-    QUnit.module("js_vollib.js_ref.black.greeks.test_numerical");
-
-    var analytical = js_vollib.js_ref.black.greeks.analytical;
-    var numerical = js_vollib.js_ref.black.greeks.numerical;
-
-    var EPSILON = 0.0001;
-
-    var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2;
-
-    QUnit.test("test_call", function () {
-        var flag = 'c';
-
-        var adelta = analytical.delta(flag, F, K, t, r, sigma);
-        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
-        assertEquals(ndelta, adelta, EPSILON);
-
-        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
-        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
-        assertEquals(ngamma, agamma, EPSILON);
-
-        var arho = analytical.rho(flag, F, K, t, r, sigma);
-        var nrho = numerical.rho(flag, F, K, t, r, sigma);
-        assertEquals(nrho, arho, EPSILON);
-
-        var avega = analytical.vega(flag, F, K, t, r, sigma);
-        var nvega = numerical.vega(flag, F, K, t, r, sigma);
-        assertEquals(nvega, avega, EPSILON);
-
-        var atheta = analytical.theta(flag, F, K, t, r, sigma);
-        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
-        assertEquals(ntheta, atheta, EPSILON);
-
-    });
-
-    QUnit.test("test_put", function () {
-        var flag = 'p';
-
-        var adelta = analytical.delta(flag, F, K, t, r, sigma);
-        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
-        assertEquals(ndelta, adelta, EPSILON);
-
-        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
-        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
-        assertEquals(ngamma, agamma, EPSILON);
-
-        var arho = analytical.rho(flag, F, K, t, r, sigma);
-        var nrho = numerical.rho(flag, F, K, t, r, sigma);
-        assertEquals(nrho, arho, EPSILON);
-
-        var avega = analytical.vega(flag, F, K, t, r, sigma);
-        var nvega = numerical.vega(flag, F, K, t, r, sigma);
-        assertEquals(nvega, avega, EPSILON);
-
-        var atheta = analytical.theta(flag, F, K, t, r, sigma);
-        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
-        assertEquals(ntheta, atheta, EPSILON);
-
     });
 
 }).call(this);

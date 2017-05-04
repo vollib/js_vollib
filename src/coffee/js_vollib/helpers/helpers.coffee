@@ -5,10 +5,6 @@ class Helpers
   _brent = new Brent(1e-15)
   _brent.maxIter = 1000
 
-  mean = 0.0
-  stdev = 1.0
-  distribution = gaussian(mean, stdev)
-
   @binary_flag: {'c':1,'p':-1}
 
   @pdf : (x) ->
@@ -18,15 +14,9 @@ class Helpers
     return S/Math.exp(-r*t)
 
   @norm_cdf: (x) ->
+    mean = 0.0
+    stdev = 1.0
     return jStat.normal.cdf(x, mean, stdev)
-#    dev = x - mean
-#    if Math.abs(dev) > 40.0 * stdev
-#      if dev < 0.0
-#        return 0.0
-#      else
-#        return 1.0
-#    else
-#      return 0.5 * (1-math.erf(-dev / (stdev * Math.SQRT2)))
 
   @brent: (func) ->
     #  scipy.optimize.brentq(

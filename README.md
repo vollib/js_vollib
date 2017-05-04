@@ -5,14 +5,21 @@
 <head>
     <!-- js_vollib dependencies -->
     
-    <!-- mathjs -->
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/3.12.1/math.min.js"></script>
+    <!-- math : mathjs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.12.1/math.min.js"></script>
+    <!-- jStat -->
+    <script src="https://cdn.jsdelivr.net/jstat/latest/jstat.min.js"></script>
     
     <!-- brent : https://github.com/croquelois/rootFinder.git -->
-    <script type="text/javascript" src="lib/rootFinder/rootFinder.js"></script>
-    
+    <script type="text/javascript" src="../lib/rootFinder/rootFinder.js"></script>
     <!-- js_lets_be_rational : git@git.quantycarlo.biz:vollib/js_lets_be_rational.git-->
-    <script type="text/javascript" src="lib/js_lets_be_rational/build/js_lets_be_rational.js"></script>
+    <script type="text/javascript" src="../lib/js_lets_be_rational/build/js_lets_be_rational.js"></script>
+   
+    <!-- --- -->
+   
+   
+    <!-- js_vollib -->
+    <script type="text/javascript" src="../build/js_vollib.js"></script>
     
     <!-- js_vollib -->
     <script type="text/javascript" src="build/js_vollib.js"></script>
