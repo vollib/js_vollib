@@ -31,21 +31,58 @@ gulp.task('lint', function () {
         .pipe(jshint.reporter('fail'));
 });
 
-gulp.task('coffee', function() {
+gulp.task('coffee', function () {
     return gulp.src('src/coffee/**/*.coffee')
-        .pipe(coffee({bare:true}))
+        .pipe(coffee({bare: false}))
         .pipe(gulp.dest('build'));
 });
 
-gulp.task('qunit', function(){
+gulp.task('qunit', function () {
     return gulp.src('test/**/*.html')
         .pipe(qunit());
 });
 
-gulp.task('concat', function(){
-    return gulp.src(['build/*.js'])
+gulp.task('concat', function () {
+    return gulp.src([
+        'build/js_vollib/js_vollib.js',
+        'build/js_vollib/helpers/helpers.js',
+        'build/js_vollib/helpers/*.js',
+        'build/js_vollib/black/*.js',
+        'build/js_vollib/black_scholes/*.js',
+        'build/js_vollib/black_scholes_merton/*.js',
+        'build/js_vollib/js_ref/js_ref.js',
+        'build/js_vollib/js_ref/black/*.js',
+        'build/js_vollib/js_ref/black_scholes/*.js',
+        'build/js_vollib/js_ref/black_scholes_merton/*.js',
+        'build/js_vollib/js_ref/black/greeks/greeks.js',
+        'build/js_vollib/js_ref/black/greeks/*.js',
+        'build/js_vollib/js_ref/black_scholes/greeks/greeks.js',
+        'build/js_vollib/js_ref/black_scholes/greeks/*.js',
+        'build/js_vollib/js_ref/black_scholes_merton/greeks/greeks.js',
+        'build/js_vollib/js_ref/black_scholes_merton/greeks/*.js',
+        'build/js_vollib/black/greeks/greeks.js',
+        'build/js_vollib/black/greeks/*.js',
+        'build/js_vollib/black_scholes/greeks/greeks.js',
+        'build/js_vollib/black_scholes/greeks/*.js',
+        'build/js_vollib/black_scholes_merton/greeks/greeks.js',
+        'build/js_vollib/black_scholes_merton/greeks/*.js'
+    ])
         .pipe(concat('js_vollib.js'))
         .pipe(gulp.dest('build'));
+});
+
+gulp.task('clean-test', function (done) {
+    require('del')([
+        'test/build'
+    ]).then(function () {
+        done();
+    });
+});
+
+gulp.task('concat-test', function () {
+    return gulp.src('test/js_vollib/**/*.js')
+        .pipe(concat('test_all.js'))
+        .pipe(gulp.dest('test/build'));
 });
 
 
@@ -62,8 +99,10 @@ gulp.task('build', function (done) {
         done);
 });
 
-gulp.task('check', function(done) {
+gulp.task('check', function (done) {
     runSequence(
+        'clean-test',
+        'concat-test',
         'lint',
         'qunit',
         done);

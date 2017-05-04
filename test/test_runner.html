@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<head>
+    <title>QUnit Test Suite</title>
+    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.1.1.css">
+    <script src="https://code.jquery.com/qunit/qunit-2.1.1.js"></script>
+
+    <!-- Your project file goes here -->
+
+    <!-- js_vollib dependencies -->
+    <!-- math : mathjs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.12.1/math.min.js"></script>
+    <!-- jStat -->
+    <script src="https://cdn.jsdelivr.net/jstat/latest/jstat.min.js"></script>
+
+    <!-- brent : https://github.com/croquelois/rootFinder.git -->
+    <script type="text/javascript" src="../lib/rootFinder/rootFinder.js"></script>
+    <!-- js_lets_be_rational : git@git.quantycarlo.biz:vollib/js_lets_be_rational.git-->
+    <script type="text/javascript" src="../lib/js_lets_be_rational/build/js_lets_be_rational.js"></script>
+    <!-- gaussian : https://github.com/errcw/gaussian.git-->
+    <script type="text/javascript" src="../lib/gaussian/lib/gaussian.js"></script>
+
+    <!-- js_vollib -->
+    <script type="text/javascript" src="../build/js_vollib.js"></script>
+
+    <!-- test-dependencies -->
+    <script type="text/javascript" src="test_data.json.js"></script>
+    <script type="text/javascript" src="test_utils.js"></script>
+
+    <!-- Your tests file goes here -->
+    <script type="text/javascript" src="build/test_all.js"></script>
+    <!--<script type="text/javascript" src="js_vollib/black_scholes_merton/test_black_scholes_merton.js"></script>-->
+    <!--<script type="text/javascript" src="js_vollib/helpers/test_helpers.js"></script>-->
+
+    <script>
+        console.log("Starting speed benchmarking:");
+        linspace(2, 6, 10).forEach(function(d, di){
+
+            var n = parseInt(Math.pow(10, d));
+            var K = linspace(145, 150, n);
+
+            var price = 0.001;
+            var F = 100;
+            var flag = 'c';
+            var r = 0.01;
+            var t = 0.5;
+
+            var start = performance.now();
+            K.forEach(function(k, ki){
+                js_vollib.black.implied_volatility.implied_volatility(price, F, k, r, t, flag);
+            });
+            var end = performance.now();
+
+            var seconds = (end - start) / 1000;
+            var message = K.length + " calls in " + seconds + "  seconds.";
+            console.log(message);
+
+        });
+    </script>
+
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+</body>
+</html>
