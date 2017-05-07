@@ -257,8 +257,9 @@
             var iv_p = implied_volatility(P, S, K, t, r, 'p');
 
             assertEquals(iv_c, expected_iv_c, 0.0001);
-            if (iv_p !== 0)
-                assertEquals(iv_p, expected_iv_p, 0.001);
+
+            assertImpliedVolatilityPUTValue(iv_p, expected_iv_p, 0.0, 0.001);
+
         });
 
     });
@@ -618,8 +619,9 @@
             var iv_p = implied_volatility(P, S, K, t, r, q, 'p');
 
             assertEquals(iv_c, expected_iv_c, 0.0001);
-            if (iv_p !== 0)
-                assertEquals(iv_p, expected_iv_p, 0.001);
+
+            assertImpliedVolatilityPUTValue(iv_p, expected_iv_p, 0.0, 0.001);
+
         });
 
     });
@@ -717,42 +719,6 @@
             }
 
         });
-    });
-
-}).call(this);
-(function () {
-    QUnit.module("js_vollib.black_scholes.test_black_scholes");
-
-    var black_scholes = js_vollib.black_scholes.black_scholes;
-
-    var EPSILON = 0.000001;
-
-    QUnit.test("testBlack_scholes_call", function () {
-        assertEquals(black_scholes('c', 100, 90, 0.5, 0.01, 0.2), 12.111581435, EPSILON);
-    });
-
-    QUnit.test("testBlack_scholes_put", function () {
-        assertEquals(black_scholes('p', 100, 90, 0.5, 0.01, 0.2), 1.66270456231, EPSILON);
-    });
-
-}).call(this);
-(function () {
-    QUnit.module("js_vollib.black_scholes.test_implied_volatility");
-
-    var black_scholes = js_vollib.black_scholes.black_scholes;
-    var implied_volatility = js_vollib.black_scholes.implied_volatility.implied_volatility;
-
-    QUnit.test("test_implied_volatility", function () {
-        var S = 100, K = 100, sigma = 0.2, r = 0.01, flag = 'c', t = 0.5;
-
-        var price = black_scholes(flag, S, K, t, r, sigma);
-        var iv = implied_volatility(price, S, K, t, r, flag);
-
-        var expected_price = 5.87602423383;
-        var expected_iv = 0.2;
-
-        assertEquals(price, expected_price, 0.00001);
-        assertEquals(iv, expected_iv, 0.00001);
     });
 
 }).call(this);
@@ -896,6 +862,42 @@
         var expected_iv = 0.232323232;
 
         assertEquals(price, expected_price, 0.0001);
+        assertEquals(iv, expected_iv, 0.00001);
+    });
+
+}).call(this);
+(function () {
+    QUnit.module("js_vollib.black_scholes.test_black_scholes");
+
+    var black_scholes = js_vollib.black_scholes.black_scholes;
+
+    var EPSILON = 0.000001;
+
+    QUnit.test("testBlack_scholes_call", function () {
+        assertEquals(black_scholes('c', 100, 90, 0.5, 0.01, 0.2), 12.111581435, EPSILON);
+    });
+
+    QUnit.test("testBlack_scholes_put", function () {
+        assertEquals(black_scholes('p', 100, 90, 0.5, 0.01, 0.2), 1.66270456231, EPSILON);
+    });
+
+}).call(this);
+(function () {
+    QUnit.module("js_vollib.black_scholes.test_implied_volatility");
+
+    var black_scholes = js_vollib.black_scholes.black_scholes;
+    var implied_volatility = js_vollib.black_scholes.implied_volatility.implied_volatility;
+
+    QUnit.test("test_implied_volatility", function () {
+        var S = 100, K = 100, sigma = 0.2, r = 0.01, flag = 'c', t = 0.5;
+
+        var price = black_scholes(flag, S, K, t, r, sigma);
+        var iv = implied_volatility(price, S, K, t, r, flag);
+
+        var expected_price = 5.87602423383;
+        var expected_iv = 0.2;
+
+        assertEquals(price, expected_price, 0.00001);
         assertEquals(iv, expected_iv, 0.00001);
     });
 
@@ -1218,8 +1220,9 @@
             var iv_p = implied_volatility(P, S, K, t, r, 'p');
 
             assertEquals(iv_c, expected_iv_c, 0.0001);
-            if (iv_p !== 0)
-                assertEquals(iv_p, expected_iv_p, 0.001);
+
+            assertImpliedVolatilityPUTValue(iv_p, expected_iv_p, js_vollib.helpers.BRENT_MIN, 0.001);
+
         });
 
     });
@@ -1579,8 +1582,9 @@
             var iv_p = implied_volatility(P, S, K, t, r, q, 'p');
 
             assertEquals(iv_c, expected_iv_c, 0.0001);
-            if (iv_p !== 0)
-                assertEquals(iv_p, expected_iv_p, 0.001);
+
+            assertImpliedVolatilityPUTValue(iv_p, expected_iv_p, js_vollib.helpers.BRENT_MIN, 0.001);
+
         });
 
     });
@@ -1678,6 +1682,114 @@
             }
 
         });
+    });
+
+}).call(this);
+(function () {
+    QUnit.module("js_vollib.black.greeks.test_analytical");
+
+    var black = js_vollib.black.black;
+    var analytical = js_vollib.black.greeks.analytical;
+
+    var EPSILON = 0.000001;
+
+    QUnit.test("test_delta", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var delta_calc = analytical.delta(flag, F, K, t, r, sigma);
+        assertEquals(delta_calc, 0.45107017482201828, EPSILON);
+    });
+
+    QUnit.test("test_theta", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
+        assertEquals(annual_theta_calc, -0.00816236877462, EPSILON);
+
+        flag = 'p';
+        annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
+        assertEquals(annual_theta_calc, -0.00802799155312, EPSILON);
+    });
+
+    QUnit.test("test_gamma", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var gamma_calc = analytical.gamma(flag, F, K, t, r, sigma);
+        assertEquals(gamma_calc, 0.0640646705882, EPSILON);
+    });
+
+    QUnit.test("test_vega", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var vega_calc = analytical.vega(flag, F, K, t, r, sigma);
+        assertEquals(vega_calc, 0.118317785624, EPSILON);
+    });
+
+    QUnit.test("test_rho", function () {
+        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
+        var rho_calc = analytical.rho(flag, F, K, t, r, sigma);
+        assertEquals(rho_calc, -0.0074705380059582258, EPSILON);
+
+        flag = 'p';
+        rho_calc = analytical.rho(flag, F, K, t, r, sigma);
+        assertEquals(rho_calc, -0.011243286001308292, EPSILON);
+    });
+
+}).call(this);
+(function () {
+    QUnit.module("js_vollib.black.greeks.test_numerical");
+
+    var analytical = js_vollib.black.greeks.analytical;
+    var numerical = js_vollib.black.greeks.numerical;
+
+    var EPSILON = 0.0001;
+
+    var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2;
+
+    QUnit.test("test_call", function () {
+        var flag = 'c';
+
+        var adelta = analytical.delta(flag, F, K, t, r, sigma);
+        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
+        assertEquals(ndelta, adelta, EPSILON);
+
+        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
+        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
+        assertEquals(ngamma, agamma, EPSILON);
+
+        var arho = analytical.rho(flag, F, K, t, r, sigma);
+        var nrho = numerical.rho(flag, F, K, t, r, sigma);
+        assertEquals(nrho, arho, EPSILON);
+
+        var avega = analytical.vega(flag, F, K, t, r, sigma);
+        var nvega = numerical.vega(flag, F, K, t, r, sigma);
+        assertEquals(nvega, avega, EPSILON);
+
+        var atheta = analytical.theta(flag, F, K, t, r, sigma);
+        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
+        assertEquals(ntheta, atheta, EPSILON);
+
+    });
+
+    QUnit.test("test_put", function () {
+        var flag = 'p';
+
+        var adelta = analytical.delta(flag, F, K, t, r, sigma);
+        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
+        assertEquals(ndelta, adelta, EPSILON);
+
+        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
+        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
+        assertEquals(ngamma, agamma, EPSILON);
+
+        var arho = analytical.rho(flag, F, K, t, r, sigma);
+        var nrho = numerical.rho(flag, F, K, t, r, sigma);
+        assertEquals(nrho, arho, EPSILON);
+
+        var avega = analytical.vega(flag, F, K, t, r, sigma);
+        var nvega = numerical.vega(flag, F, K, t, r, sigma);
+        assertEquals(nvega, avega, EPSILON);
+
+        var atheta = analytical.theta(flag, F, K, t, r, sigma);
+        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
+        assertEquals(ntheta, atheta, EPSILON);
+
     });
 
 }).call(this);
@@ -1806,114 +1918,6 @@
         var rho_calc = numerical.rho(flag, S, K, t, r, sigma);
         var rho_text_book = 0.0891;
         assertEquals(rho_calc, rho_text_book, 0.0001);
-    });
-
-}).call(this);
-(function () {
-    QUnit.module("js_vollib.black.greeks.test_analytical");
-
-    var black = js_vollib.black.black;
-    var analytical = js_vollib.black.greeks.analytical;
-
-    var EPSILON = 0.000001;
-
-    QUnit.test("test_delta", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var delta_calc = analytical.delta(flag, F, K, t, r, sigma);
-        assertEquals(delta_calc, 0.45107017482201828, EPSILON);
-    });
-
-    QUnit.test("test_theta", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
-        assertEquals(annual_theta_calc, -0.00816236877462, EPSILON);
-
-        flag = 'p';
-        annual_theta_calc = analytical.theta(flag, F, K, t, r, sigma);
-        assertEquals(annual_theta_calc, -0.00802799155312, EPSILON);
-    });
-
-    QUnit.test("test_gamma", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var gamma_calc = analytical.gamma(flag, F, K, t, r, sigma);
-        assertEquals(gamma_calc, 0.0640646705882, EPSILON);
-    });
-
-    QUnit.test("test_vega", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var vega_calc = analytical.vega(flag, F, K, t, r, sigma);
-        assertEquals(vega_calc, 0.118317785624, EPSILON);
-    });
-
-    QUnit.test("test_rho", function () {
-        var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2, flag = 'c';
-        var rho_calc = analytical.rho(flag, F, K, t, r, sigma);
-        assertEquals(rho_calc, -0.0074705380059582258, EPSILON);
-
-        flag = 'p';
-        rho_calc = analytical.rho(flag, F, K, t, r, sigma);
-        assertEquals(rho_calc, -0.011243286001308292, EPSILON);
-    });
-
-}).call(this);
-(function () {
-    QUnit.module("js_vollib.black.greeks.test_numerical");
-
-    var analytical = js_vollib.black.greeks.analytical;
-    var numerical = js_vollib.black.greeks.numerical;
-
-    var EPSILON = 0.0001;
-
-    var F = 49, K = 50, r = 0.05, t = 0.3846, sigma = 0.2;
-
-    QUnit.test("test_call", function () {
-        var flag = 'c';
-
-        var adelta = analytical.delta(flag, F, K, t, r, sigma);
-        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
-        assertEquals(ndelta, adelta, EPSILON);
-
-        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
-        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
-        assertEquals(ngamma, agamma, EPSILON);
-
-        var arho = analytical.rho(flag, F, K, t, r, sigma);
-        var nrho = numerical.rho(flag, F, K, t, r, sigma);
-        assertEquals(nrho, arho, EPSILON);
-
-        var avega = analytical.vega(flag, F, K, t, r, sigma);
-        var nvega = numerical.vega(flag, F, K, t, r, sigma);
-        assertEquals(nvega, avega, EPSILON);
-
-        var atheta = analytical.theta(flag, F, K, t, r, sigma);
-        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
-        assertEquals(ntheta, atheta, EPSILON);
-
-    });
-
-    QUnit.test("test_put", function () {
-        var flag = 'p';
-
-        var adelta = analytical.delta(flag, F, K, t, r, sigma);
-        var ndelta = numerical.delta(flag, F, K, t, r, sigma);
-        assertEquals(ndelta, adelta, EPSILON);
-
-        var agamma = analytical.gamma(flag, F, K, t, r, sigma);
-        var ngamma = numerical.gamma(flag, F, K, t, r, sigma);
-        assertEquals(ngamma, agamma, EPSILON);
-
-        var arho = analytical.rho(flag, F, K, t, r, sigma);
-        var nrho = numerical.rho(flag, F, K, t, r, sigma);
-        assertEquals(nrho, arho, EPSILON);
-
-        var avega = analytical.vega(flag, F, K, t, r, sigma);
-        var nvega = numerical.vega(flag, F, K, t, r, sigma);
-        assertEquals(nvega, avega, EPSILON);
-
-        var atheta = analytical.theta(flag, F, K, t, r, sigma);
-        var ntheta = numerical.theta(flag, F, K, t, r, sigma);
-        assertEquals(ntheta, atheta, EPSILON);
-
     });
 
 }).call(this);
@@ -2325,7 +2329,7 @@
     QUnit.test("test_implied_volatility", function () {
         var F = 100, K = 100, sigma = 0.2, t = 0.5, r = 0.02;
 
-        (['c', 'p']).forEach(function(flag, flag_i){
+        (['c', 'p']).forEach(function (flag, flag_i) {
             var price = black(flag, F, K, t, r, sigma);
             var js_ref_price = js_ref_black(flag, F, K, t, r, sigma);
 
@@ -2334,6 +2338,56 @@
 
             assertEquals(iv, js_ref_iv, 1e-15);
         });
+    });
+
+    QUnit.test("test_below_intrinsic_volatility_error", function () {
+        var price = -1.0;
+        var F = 100;
+        var K = 100;
+        var t = 0.5;
+        var flag = 'c';
+
+        QUnit.assert.throws(
+            function () {
+                implied_volatility(price, F, K, 0, t, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic && !(error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum);
+            }
+        );
+
+        QUnit.assert.throws(
+            function () {
+                js_ref_implied_volatility(price, F, K, 0, t, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic && !(error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum);
+            }
+        );
+    });
+
+    QUnit.test("test_above_maximum_volatility_error", function () {
+        var price = 200;
+        var F = 100;
+        var K = 100;
+        var T = 0.5;
+        var flag = 'c';
+
+        QUnit.assert.throws(
+            function () {
+                implied_volatility(price, F, K, 0, T, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum && !(error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic);
+            }
+        );
+
+        QUnit.assert.throws(
+            function () {
+                js_ref_implied_volatility(price, F, K, 0, T, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum && !(error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic);
+            }
+        );
+
+
     });
 
 }).call(this);
@@ -2351,6 +2405,64 @@
             var price = black(flag, F, K, t, r, sigma);
             var js_ref_price = js_ref_black(flag, F, K, t, r, sigma);
             assertEquals(price, js_ref_price, 1e-13);
+        });
+    });
+
+}).call(this);
+(function () {
+
+    QUnit.module("js_vollib.js_vollib_vs_js_ref_values.black.test_using_test_data.json_values");
+
+    var black = js_vollib.black.black;
+    var js_ref_black = js_vollib.js_ref.black.black;
+
+    var implied_volatility = js_vollib.black.implied_volatility.implied_volatility;
+    var js_ref_implied_volatility = js_vollib.js_ref.black.implied_volatility.implied_volatility;
+
+    var flags = ['c', 'p'];
+
+    var EPSILON = 0.001;
+
+    QUnit.test("test_price", function () {
+        flags.forEach(function (flag, flag_i) {
+            test_data.data.forEach(function (values, index) {
+                var S = values[test_data.columns.indexOf('S')];
+                var K = values[test_data.columns.indexOf('K')];
+                var t = values[test_data.columns.indexOf('t')];
+                var r = values[test_data.columns.indexOf('R')];
+                var sigma = values[test_data.columns.indexOf('v')];
+
+                var F = S;
+
+                var price = black(flag, F, K, t, r, sigma);
+                var js_ref_price = js_ref_black(flag, F, K, t, r, sigma);
+
+                assertEquals(js_ref_price, price, EPSILON);
+
+            });
+        });
+    });
+
+    QUnit.test("test_implied_volatility", function () {
+        flags.forEach(function (flag, flag_i) {
+            test_data.data.forEach(function (values, index) {
+                var S = values[test_data.columns.indexOf('S')];
+                var K = values[test_data.columns.indexOf('K')];
+                var t = values[test_data.columns.indexOf('t')];
+                var r = values[test_data.columns.indexOf('R')];
+                var sigma = values[test_data.columns.indexOf('v')];
+
+                var F = S;
+
+                var price = black(flag, F, K, t, r, sigma);
+                var js_ref_price = js_ref_black(flag, F, K, t, r, sigma);
+
+                var iv = implied_volatility(price, F, K, r, t, flag);
+                var js_ref_iv = js_ref_implied_volatility(js_ref_price, F, K, r, t, flag);
+
+                assertEquals(js_ref_iv, iv, EPSILON);
+
+            });
         });
     });
 
@@ -2487,7 +2599,7 @@
     var flags = ['c', 'p'];
 
     QUnit.test("test_implied_volatility", function () {
-        flags.forEach(function (flag, flag_i){
+        flags.forEach(function (flag, flag_i) {
             var price = black_scholes(flag, S, K, t, r, sigma);
             var js_ref_price = js_ref_black_scholes(flag, S, K, t, r, sigma);
 
@@ -2497,6 +2609,58 @@
             assertEquals(iv, js_ref_iv, 1e-15);
         });
     });
+
+
+    QUnit.test("test_below_intrinsic_volatility_error", function () {
+        var price = -1.0;
+        var S = 100;
+        var K = 100;
+        var t = 0.5;
+        var r = 0;
+        var flag = 'c';
+
+        QUnit.assert.throws(
+            function () {
+                implied_volatility(price, S, K, t, r, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic && !(error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum);
+            }
+        );
+
+        QUnit.assert.throws(
+            function () {
+                js_ref_implied_volatility(price, S, K, t, r, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic && !(error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum);
+            }
+        );
+    });
+
+    QUnit.test("test_above_maximum_volatility_error", function () {
+        var price = 200;
+        var S = 100;
+        var K = 100;
+        var t = 0.5;
+        var r = 0;
+        var flag = 'c';
+
+        QUnit.assert.throws(
+            function () {
+                implied_volatility(price, S, K, t, r, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum && !(error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic);
+            }
+        );
+
+        QUnit.assert.throws(
+            function () {
+                js_ref_implied_volatility(price, S, K, t, r, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum && !(error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic);
+            }
+        );
+    });
+
 
 }).call(this);
 (function () {
@@ -2514,6 +2678,60 @@
             var price = black_scholes(flag, S, K, t, r, sigma);
             var js_ref_price = js_ref_black_scholes(flag, S, K, t, r, sigma);
             assertEquals(price, js_ref_price, 1e-13);
+        });
+    });
+
+}).call(this);
+(function () {
+
+    QUnit.module("js_vollib.js_vollib_vs_js_ref_values.black_scholes.test_using_test_data.json_values");
+
+    var black_scholes = js_vollib.black_scholes.black_scholes;
+    var js_ref_black_scholes = js_vollib.js_ref.black_scholes.black_scholes;
+
+    var implied_volatility = js_vollib.black_scholes.implied_volatility.implied_volatility;
+    var js_ref_implied_volatility = js_vollib.js_ref.black_scholes.implied_volatility.implied_volatility;
+
+    var flags = ['c', 'p'];
+
+    var EPSILON = 0.001;
+
+    QUnit.test("test_price", function () {
+        flags.forEach(function (flag, flag_i) {
+            test_data.data.forEach(function (values, index) {
+                var S = values[test_data.columns.indexOf('S')];
+                var K = values[test_data.columns.indexOf('K')];
+                var t = values[test_data.columns.indexOf('t')];
+                var r = values[test_data.columns.indexOf('R')];
+                var sigma = values[test_data.columns.indexOf('v')];
+
+                var price = black_scholes(flag, S, K, t, r, sigma);
+                var js_ref_price = js_ref_black_scholes(flag, S, K, t, r, sigma);
+
+                assertEquals(js_ref_price, price, EPSILON);
+
+            });
+        });
+    });
+
+    QUnit.test("test_implied_volatility", function () {
+        flags.forEach(function (flag, flag_i) {
+            test_data.data.forEach(function (values, index) {
+                var S = values[test_data.columns.indexOf('S')];
+                var K = values[test_data.columns.indexOf('K')];
+                var t = values[test_data.columns.indexOf('t')];
+                var r = values[test_data.columns.indexOf('R')];
+                var sigma = values[test_data.columns.indexOf('v')];
+
+                var price = black_scholes(flag, S, K, t, r, sigma);
+                var js_ref_price = js_ref_black_scholes(flag, S, K, t, r, sigma);
+
+                var iv = implied_volatility(price, S, K, t, r, flag);
+                var js_ref_iv = js_ref_implied_volatility(js_ref_price, S, K, t, r, flag);
+
+                assertEquals(js_ref_iv, iv, EPSILON);
+
+            });
         });
     });
 
@@ -2640,6 +2858,59 @@
         });
     });
 
+
+    QUnit.test("test_below_intrinsic_volatility_error", function(){
+        var price = -1.0;
+        var S = 100;
+        var K = 100;
+        var t = 0.5;
+        var r = 0;
+        var q = 0.05;
+        var flag = 'c';
+
+        QUnit.assert.throws(
+            function() {
+                implied_volatility(price, S, K, t, r, q, flag);
+            }, function(error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic && !(error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum);
+            }
+        );
+
+        QUnit.assert.throws(
+            function() {
+                js_ref_implied_volatility(price, S, K, t, r, q, flag);
+            }, function(error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic && !(error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum);
+            }
+        );
+    });
+
+    QUnit.test("test_above_maximum_volatility_error", function(){
+        var price = 200;
+        var S = 100;
+        var K = 100;
+        var t = 0.5;
+        var r = 0;
+        var flag = 'c';
+
+        QUnit.assert.throws(
+            function() {
+                implied_volatility(price, S, K, t, r, q, flag);
+            }, function(error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum && !(error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic);
+            }
+        );
+
+        QUnit.assert.throws(
+            function() {
+                js_ref_implied_volatility(price, S, K, t, r, q, flag);
+            }, function(error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum && !(error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic);
+            }
+        );
+    });
+
+
 }).call(this);
 (function () {
 
@@ -2656,6 +2927,62 @@
             var price = black_scholes_merton(flag, S, K, t, r, sigma, q);
             var js_ref_price = js_ref_black_scholes_merton(flag, S, K, t, r, sigma, q);
             assertEquals(price, js_ref_price, 1e-13);
+        });
+    });
+
+}).call(this);
+(function () {
+
+    QUnit.module("js_vollib.js_vollib_vs_js_ref_values.black_scholes_merton.test_using_test_data.json_values");
+
+    var black_scholes_merton = js_vollib.black_scholes_merton.black_scholes_merton;
+    var js_ref_black_scholes_merton = js_vollib.js_ref.black_scholes_merton.black_scholes_merton;
+
+    var implied_volatility = js_vollib.black_scholes_merton.implied_volatility.implied_volatility;
+    var js_ref_implied_volatility = js_vollib.js_ref.black_scholes_merton.implied_volatility.implied_volatility;
+
+    var flags = ['c', 'p'];
+
+    var EPSILON = 0.001;
+
+    QUnit.test("test_price", function () {
+        flags.forEach(function (flag, flag_i) {
+            test_data.data.forEach(function (values, index) {
+                var S = values[test_data.columns.indexOf('S')];
+                var K = values[test_data.columns.indexOf('K')];
+                var t = values[test_data.columns.indexOf('t')];
+                var r = values[test_data.columns.indexOf('R')];
+                var sigma = values[test_data.columns.indexOf('v')];
+                var q = 0.3;
+
+                var price = black_scholes_merton(flag, S, K, t, r, sigma, q);
+                var js_ref_price = js_ref_black_scholes_merton(flag, S, K, t, r, sigma, q);
+
+                assertEquals(js_ref_price, price, EPSILON);
+
+            });
+        });
+    });
+
+    QUnit.test("test_implied_volatility", function () {
+        flags.forEach(function (flag, flag_i) {
+            test_data.data.forEach(function (values, index) {
+                var S = values[test_data.columns.indexOf('S')];
+                var K = values[test_data.columns.indexOf('K')];
+                var t = values[test_data.columns.indexOf('t')];
+                var r = values[test_data.columns.indexOf('R')];
+                var sigma = values[test_data.columns.indexOf('v')];
+                var q = 0;
+
+                var price = black_scholes_merton(flag, S, K, t, r, sigma, q);
+                var js_ref_price = js_ref_black_scholes_merton(flag, S, K, t, r, sigma, q);
+
+                var iv = implied_volatility(price, S, K, t, r, q, flag);
+                var js_ref_iv = js_ref_implied_volatility(js_ref_price, S, K, t, r, q, flag);
+
+                assertEquals(js_ref_iv, iv, EPSILON);
+
+            });
         });
     });
 

@@ -12,6 +12,11 @@ function assertEquals(actual, expected, delta) {
     }
 }
 
+function assertImpliedVolatilityPUTValue(actual_iv, sigma_input, min_value, delta) {
+    var message = "Expected values: ".concat(sigma_input, " or ", min_value, "\ Actual: ", actual_iv);
+    QUnit.assert.ok((Math.abs(actual_iv-sigma_input) <= delta) || actual_iv == min_value, message);
+}
+
 function linspace(start, end, size) {
     var step = (end-start)/(size-1);
     var result = math.range(start, end, step).toArray();

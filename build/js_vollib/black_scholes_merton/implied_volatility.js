@@ -23,17 +23,28 @@
     iv = js_lets_be_rational.implied_volatility_from_a_transformed_rational_guess;
 
     ImpliedVolatility.implied_volatility = function(price, S, K, t, r, q, flag) {
-      var F, deflater, sigma_calc, undiscounted_option_price;
+      var F, deflater, error, sigma_calc, undiscounted_option_price;
       deflater = Math.exp(-r * t);
       undiscounted_option_price = price / deflater;
       F = S * Math.exp((r - q) * t);
-      sigma_calc = iv(undiscounted_option_price, F, K, t, binary_flag[flag]);
-      if (sigma_calc === FLOAT_MAX) {
-        throw PriceIsAboveMaximum();
-      } else if (sigma_calc === MINUS_FLOAT_MAX) {
-        throw PriceIsBelowIntrinsic();
+      try {
+        sigma_calc = iv(undiscounted_option_price, F, K, t, binary_flag[flag]);
+        if (sigma_calc === FLOAT_MAX) {
+          throw new PriceIsAboveMaximum();
+        } else if (sigma_calc === MINUS_FLOAT_MAX) {
+          throw new PriceIsBelowIntrinsic();
+        }
+        return sigma_calc;
+      } catch (error1) {
+        error = error1;
+        if (error instanceof js_lets_be_rational.AboveMaximumError) {
+          throw new PriceIsAboveMaximum();
+        } else if (error instanceof js_lets_be_rational.BelowIntrinsicError) {
+          throw new PriceIsBelowIntrinsic();
+        } else {
+          throw error;
+        }
       }
-      return sigma_calc;
     };
 
     return ImpliedVolatility;

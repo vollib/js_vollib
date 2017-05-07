@@ -16,11 +16,19 @@ class ImpliedVolatility
     deflater = Math.exp(-r * t)
     undiscounted_option_price = price / deflater
     F = forward_price(S, t, r)
-    sigma_calc = iv(undiscounted_option_price, F, K, t, binary_flag[flag])
-    if sigma_calc == FLOAT_MAX
-      throw PriceIsAboveMaximum()
-    else if sigma_calc == MINUS_FLOAT_MAX
-      throw PriceIsBelowIntrinsic()
-    return sigma_calc
+    try
+      sigma_calc = iv(undiscounted_option_price, F, K, t, binary_flag[flag])
+      if sigma_calc == FLOAT_MAX
+        throw new PriceIsAboveMaximum()
+      else if sigma_calc == MINUS_FLOAT_MAX
+        throw new PriceIsBelowIntrinsic()
+      return sigma_calc
+    catch error
+      if error instanceof js_lets_be_rational.AboveMaximumError
+        throw new PriceIsAboveMaximum()
+      else if error instanceof js_lets_be_rational.BelowIntrinsicError
+        throw new PriceIsBelowIntrinsic()
+      else
+        throw error
 
 js_vollib.black_scholes.implied_volatility = ImpliedVolatility

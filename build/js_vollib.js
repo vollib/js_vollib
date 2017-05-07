@@ -7,15 +7,25 @@
   var Helpers;
 
   Helpers = (function() {
-    var ONE_OVER_SQRT_TWO_PI, _brent;
+    var AboveMaximumError, BelowIntrinsicError, ONE_OVER_SQRT_TWO_PI, _brent;
 
     function Helpers() {}
 
     ONE_OVER_SQRT_TWO_PI = 0.3989422804014326779399460599343818684758586311649;
 
-    _brent = new Brent(1e-15);
+    Helpers.BRENT_MIN = 1e-12;
+
+    Helpers.BRENT_MAX = 100;
+
+    BelowIntrinsicError = js_lets_be_rational.BelowIntrinsicError;
+
+    AboveMaximumError = js_lets_be_rational.AboveMaximumError;
+
+    _brent = new Brent(0);
 
     _brent.maxIter = 1000;
+
+    _brent.zero = 0;
 
     Helpers.binary_flag = {
       'c': 1,
@@ -31,14 +41,46 @@
     };
 
     Helpers.norm_cdf = function(x) {
-      var mean, stdev;
-      mean = 0.0;
-      stdev = 1.0;
-      return jStat.normal.cdf(x, mean, stdev);
+      return js_lets_be_rational.norm_cdf(x);
     };
 
     Helpers.brent = function(func) {
-      return _brent.getRoot(func, 1e-12, 100);
+      var functionalValueAccuracy, initial, max, min, yInitial, yMax, yMin;
+      min = Helpers.BRENT_MIN;
+      max = Helpers.BRENT_MAX;
+      initial = min + 0.5 * (max - min);
+      functionalValueAccuracy = 0.0;
+      yInitial = func(initial);
+      if (Math.abs(yInitial) <= functionalValueAccuracy) {
+        return initial;
+      } else {
+        yMin = func(min);
+        if (Math.abs(yMin) <= functionalValueAccuracy) {
+          return min;
+        } else if (yInitial * yMin < 0.0) {
+          return _brent.getRoot(func, min, initial);
+        } else {
+          yMax = func(max);
+          if (Math.abs(yMax) <= functionalValueAccuracy) {
+            return max;
+          } else if (yInitial * yMax < 0.0) {
+            return _brent(func, initial, max);
+          }
+          return false;
+        }
+      }
+    };
+
+    Helpers.validate_price = function(price, F, K, q) {
+      var intrinsic, max_price;
+      intrinsic = Math.abs(Math.max((q < 0 ? K - F : F - K), 0.0));
+      if (price < intrinsic) {
+        throw new js_vollib.helpers.exceptions.PriceIsBelowIntrinsic();
+      }
+      max_price = q < 0 ? K : F;
+      if (price >= max_price) {
+        throw new js_vollib.helpers.exceptions.PriceIsAboveMaximum();
+      }
     };
 
     return Helpers;
@@ -236,16 +278,27 @@
     lets_be_rational = js_lets_be_rational;
 
     ImpliedVolatility.implied_volatility_of_discounted_option_price = function(discounted_option_price, F, K, r, t, flag) {
-      var deflater, sigma_calc, undiscounted_option_price;
+      var deflater, error, sigma_calc, undiscounted_option_price;
       deflater = Math.exp(-r * t);
       undiscounted_option_price = discounted_option_price / deflater;
-      sigma_calc = js_lets_be_rational.implied_volatility_from_a_transformed_rational_guess(undiscounted_option_price, F, K, t, binary_flag[flag]);
-      if (sigma_calc === FLOAT_MAX) {
-        throw PriceIsAboveMaximum();
-      } else if (sigma_calc === MINUS_FLOAT_MAX) {
-        throw PriceIsBelowIntrinsic();
+      try {
+        sigma_calc = js_lets_be_rational.implied_volatility_from_a_transformed_rational_guess(undiscounted_option_price, F, K, t, binary_flag[flag]);
+        if (sigma_calc === FLOAT_MAX) {
+          throw new PriceIsAboveMaximum();
+        } else if (sigma_calc === MINUS_FLOAT_MAX) {
+          throw new PriceIsBelowIntrinsic();
+        }
+        return sigma_calc;
+      } catch (error1) {
+        error = error1;
+        if (error instanceof js_lets_be_rational.AboveMaximumError) {
+          throw new PriceIsAboveMaximum();
+        } else if (error instanceof js_lets_be_rational.BelowIntrinsicError) {
+          throw new PriceIsBelowIntrinsic();
+        } else {
+          throw error;
+        }
       }
-      return sigma_calc;
     };
 
     ImpliedVolatility.implied_volatility = function(discounted_option_price, F, K, r, t, flag) {
@@ -330,17 +383,28 @@
     iv = js_lets_be_rational.implied_volatility_from_a_transformed_rational_guess;
 
     ImpliedVolatility.implied_volatility = function(price, S, K, t, r, flag) {
-      var F, deflater, sigma_calc, undiscounted_option_price;
+      var F, deflater, error, sigma_calc, undiscounted_option_price;
       deflater = Math.exp(-r * t);
       undiscounted_option_price = price / deflater;
       F = forward_price(S, t, r);
-      sigma_calc = iv(undiscounted_option_price, F, K, t, binary_flag[flag]);
-      if (sigma_calc === FLOAT_MAX) {
-        throw PriceIsAboveMaximum();
-      } else if (sigma_calc === MINUS_FLOAT_MAX) {
-        throw PriceIsBelowIntrinsic();
+      try {
+        sigma_calc = iv(undiscounted_option_price, F, K, t, binary_flag[flag]);
+        if (sigma_calc === FLOAT_MAX) {
+          throw new PriceIsAboveMaximum();
+        } else if (sigma_calc === MINUS_FLOAT_MAX) {
+          throw new PriceIsBelowIntrinsic();
+        }
+        return sigma_calc;
+      } catch (error1) {
+        error = error1;
+        if (error instanceof js_lets_be_rational.AboveMaximumError) {
+          throw new PriceIsAboveMaximum();
+        } else if (error instanceof js_lets_be_rational.BelowIntrinsicError) {
+          throw new PriceIsBelowIntrinsic();
+        } else {
+          throw error;
+        }
       }
-      return sigma_calc;
     };
 
     return ImpliedVolatility;
@@ -403,17 +467,28 @@
     iv = js_lets_be_rational.implied_volatility_from_a_transformed_rational_guess;
 
     ImpliedVolatility.implied_volatility = function(price, S, K, t, r, q, flag) {
-      var F, deflater, sigma_calc, undiscounted_option_price;
+      var F, deflater, error, sigma_calc, undiscounted_option_price;
       deflater = Math.exp(-r * t);
       undiscounted_option_price = price / deflater;
       F = S * Math.exp((r - q) * t);
-      sigma_calc = iv(undiscounted_option_price, F, K, t, binary_flag[flag]);
-      if (sigma_calc === FLOAT_MAX) {
-        throw PriceIsAboveMaximum();
-      } else if (sigma_calc === MINUS_FLOAT_MAX) {
-        throw PriceIsBelowIntrinsic();
+      try {
+        sigma_calc = iv(undiscounted_option_price, F, K, t, binary_flag[flag]);
+        if (sigma_calc === FLOAT_MAX) {
+          throw new PriceIsAboveMaximum();
+        } else if (sigma_calc === MINUS_FLOAT_MAX) {
+          throw new PriceIsBelowIntrinsic();
+        }
+        return sigma_calc;
+      } catch (error1) {
+        error = error1;
+        if (error instanceof js_lets_be_rational.AboveMaximumError) {
+          throw new PriceIsAboveMaximum();
+        } else if (error instanceof js_lets_be_rational.BelowIntrinsicError) {
+          throw new PriceIsBelowIntrinsic();
+        } else {
+          throw error;
+        }
       }
-      return sigma_calc;
     };
 
     return ImpliedVolatility;
@@ -487,7 +562,7 @@
   var ImpliedVolatility;
 
   ImpliedVolatility = (function() {
-    var black, brent;
+    var binary_flag, black, brent;
 
     function ImpliedVolatility() {}
 
@@ -495,12 +570,19 @@
 
     brent = js_vollib.helpers.brent;
 
+    binary_flag = js_vollib.helpers.binary_flag;
+
     ImpliedVolatility.implied_volatility = function(price, F, K, r, t, flag) {
-      var f;
+      var f, result;
       f = function(sigma) {
         return price - black(flag, F, K, t, r, sigma);
       };
-      return brent(f);
+      result = brent(f);
+      if (!result) {
+        return js_vollib.helpers.validate_price(price, F, K, binary_flag[flag]);
+      } else {
+        return result;
+      }
     };
 
     return ImpliedVolatility;
@@ -557,7 +639,7 @@
   var ImpliedVolatility;
 
   ImpliedVolatility = (function() {
-    var black_scholes, brent;
+    var binary_flag, black_scholes, brent;
 
     function ImpliedVolatility() {}
 
@@ -565,12 +647,20 @@
 
     brent = js_vollib.helpers.brent;
 
+    binary_flag = js_vollib.helpers.binary_flag;
+
     ImpliedVolatility.implied_volatility = function(price, S, K, t, r, flag) {
-      var f;
+      var F, f, result;
       f = function(sigma) {
         return price - black_scholes(flag, S, K, t, r, sigma);
       };
-      return brent(f);
+      result = brent(f);
+      if (!result) {
+        F = S * Math.exp(r * t);
+        return js_vollib.helpers.validate_price(price, F, K, binary_flag[flag]);
+      } else {
+        return result;
+      }
     };
 
     return ImpliedVolatility;
@@ -636,7 +726,7 @@
   var ImpliedVolatility;
 
   ImpliedVolatility = (function() {
-    var black_scholes_merton, brent;
+    var binary_flag, black_scholes_merton, brent;
 
     function ImpliedVolatility() {}
 
@@ -644,12 +734,20 @@
 
     brent = js_vollib.helpers.brent;
 
+    binary_flag = js_vollib.helpers.binary_flag;
+
     ImpliedVolatility.implied_volatility = function(price, S, K, t, r, q, flag) {
-      var f;
+      var F, f, result;
       f = function(sigma) {
         return price - black_scholes_merton(flag, S, K, t, r, sigma, q);
       };
-      return brent(f);
+      result = brent(f);
+      if (!result) {
+        F = S * Math.exp(r * t);
+        return js_vollib.helpers.validate_price(price, F, K, binary_flag[flag]);
+      } else {
+        return result;
+      }
     };
 
     return ImpliedVolatility;

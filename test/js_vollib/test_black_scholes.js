@@ -257,8 +257,9 @@
             var iv_p = implied_volatility(P, S, K, t, r, 'p');
 
             assertEquals(iv_c, expected_iv_c, 0.0001);
-            if (iv_p !== 0)
-                assertEquals(iv_p, expected_iv_p, 0.001);
+
+            assertImpliedVolatilityPUTValue(iv_p, expected_iv_p, 0.0, 0.001);
+
         });
 
     });

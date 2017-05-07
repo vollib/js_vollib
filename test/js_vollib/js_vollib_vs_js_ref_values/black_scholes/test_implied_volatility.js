@@ -12,7 +12,7 @@
     var flags = ['c', 'p'];
 
     QUnit.test("test_implied_volatility", function () {
-        flags.forEach(function (flag, flag_i){
+        flags.forEach(function (flag, flag_i) {
             var price = black_scholes(flag, S, K, t, r, sigma);
             var js_ref_price = js_ref_black_scholes(flag, S, K, t, r, sigma);
 
@@ -22,5 +22,57 @@
             assertEquals(iv, js_ref_iv, 1e-15);
         });
     });
+
+
+    QUnit.test("test_below_intrinsic_volatility_error", function () {
+        var price = -1.0;
+        var S = 100;
+        var K = 100;
+        var t = 0.5;
+        var r = 0;
+        var flag = 'c';
+
+        QUnit.assert.throws(
+            function () {
+                implied_volatility(price, S, K, t, r, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic && !(error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum);
+            }
+        );
+
+        QUnit.assert.throws(
+            function () {
+                js_ref_implied_volatility(price, S, K, t, r, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic && !(error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum);
+            }
+        );
+    });
+
+    QUnit.test("test_above_maximum_volatility_error", function () {
+        var price = 200;
+        var S = 100;
+        var K = 100;
+        var t = 0.5;
+        var r = 0;
+        var flag = 'c';
+
+        QUnit.assert.throws(
+            function () {
+                implied_volatility(price, S, K, t, r, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum && !(error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic);
+            }
+        );
+
+        QUnit.assert.throws(
+            function () {
+                js_ref_implied_volatility(price, S, K, t, r, flag);
+            }, function (error) {
+                return error instanceof js_vollib.helpers.exceptions.PriceIsAboveMaximum && !(error instanceof js_vollib.helpers.exceptions.PriceIsBelowIntrinsic);
+            }
+        );
+    });
+
 
 }).call(this);

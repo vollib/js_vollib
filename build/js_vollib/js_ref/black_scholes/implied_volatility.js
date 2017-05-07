@@ -2,7 +2,7 @@
   var ImpliedVolatility;
 
   ImpliedVolatility = (function() {
-    var black_scholes, brent;
+    var binary_flag, black_scholes, brent;
 
     function ImpliedVolatility() {}
 
@@ -10,12 +10,20 @@
 
     brent = js_vollib.helpers.brent;
 
+    binary_flag = js_vollib.helpers.binary_flag;
+
     ImpliedVolatility.implied_volatility = function(price, S, K, t, r, flag) {
-      var f;
+      var F, f, result;
       f = function(sigma) {
         return price - black_scholes(flag, S, K, t, r, sigma);
       };
-      return brent(f);
+      result = brent(f);
+      if (!result) {
+        F = S * Math.exp(r * t);
+        return js_vollib.helpers.validate_price(price, F, K, binary_flag[flag]);
+      } else {
+        return result;
+      }
     };
 
     return ImpliedVolatility;

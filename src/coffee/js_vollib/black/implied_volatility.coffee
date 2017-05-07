@@ -12,18 +12,28 @@ class ImpliedVolatility
   @implied_volatility_of_discounted_option_price: (discounted_option_price, F, K, r, t, flag) ->
     deflater = Math.exp(-r * t)
     undiscounted_option_price = discounted_option_price / deflater
-    sigma_calc = js_lets_be_rational.implied_volatility_from_a_transformed_rational_guess(
-      undiscounted_option_price,
-      F,
-      K,
-      t,
-      binary_flag[flag]
-    )
-    if sigma_calc == FLOAT_MAX
-      throw PriceIsAboveMaximum()
-    else if sigma_calc == MINUS_FLOAT_MAX
-      throw PriceIsBelowIntrinsic()
-    return sigma_calc
+
+    try
+      sigma_calc = js_lets_be_rational.implied_volatility_from_a_transformed_rational_guess(
+        undiscounted_option_price,
+        F,
+        K,
+        t,
+        binary_flag[flag]
+      )
+
+      if sigma_calc == FLOAT_MAX
+        throw new PriceIsAboveMaximum()
+      else if sigma_calc == MINUS_FLOAT_MAX
+        throw new PriceIsBelowIntrinsic()
+      return sigma_calc
+    catch error
+      if error instanceof js_lets_be_rational.AboveMaximumError
+        throw new PriceIsAboveMaximum()
+      else if error instanceof js_lets_be_rational.BelowIntrinsicError
+        throw new PriceIsBelowIntrinsic()
+      else
+        throw error
 
   @implied_volatility: (discounted_option_price, F, K, r, t, flag) ->
     return ImpliedVolatility.implied_volatility_of_discounted_option_price(discounted_option_price, F, K, r, t, flag)
