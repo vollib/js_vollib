@@ -21,10 +21,9 @@ class Helpers
     return S/Math.exp(-r*t)
 
   @norm_cdf: (x) ->
-#    mean = 0.0
-#    stdev = 1.0
-#    return jStat.normal.cdf(x, mean, stdev)
-    return js_lets_be_rational.norm_cdf(x)
+    mean = 0.0
+    stdev = 1.0
+    return jStat.normal.cdf(x, mean, stdev)
 
   @brent: (func) ->
     #  scipy.optimize.brentq(
