@@ -10,7 +10,7 @@
 
     var flags = ['c', 'p'];
 
-    var EPSILON = 0.001;
+    var EPSILON = 0.0015;
 
     QUnit.test("test_price", function () {
         flags.forEach(function (flag, flag_i) {
@@ -21,7 +21,7 @@
                 var r = values[test_data.columns.indexOf('R')];
                 var sigma = values[test_data.columns.indexOf('v')];
 
-                var F = S;
+                var F = S * Math.exp(r*t);
 
                 var price = black(flag, F, K, t, r, sigma);
                 var js_ref_price = js_ref_black(flag, F, K, t, r, sigma);
@@ -41,7 +41,8 @@
                 var r = values[test_data.columns.indexOf('R')];
                 var sigma = values[test_data.columns.indexOf('v')];
 
-                var F = S;
+                var F = S * Math.exp(r*t);
+                F = Math.round(F * 100) / 100;
 
                 var price = black(flag, F, K, t, r, sigma);
                 var js_ref_price = js_ref_black(flag, F, K, t, r, sigma);
