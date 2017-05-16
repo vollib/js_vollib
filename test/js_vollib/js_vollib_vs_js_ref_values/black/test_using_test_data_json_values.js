@@ -76,16 +76,18 @@
                 var js_ref_price = js_ref_black(flag, F, K, t, r, sigma);
                 js_ref_price = Math.round(js_ref_price * decimal_places) / decimal_places;
 
+                var iv = null;
                 var iv_err = null;
                 try {
-                    var iv = implied_volatility(price, F, K, r, t, flag);
+                    iv = implied_volatility(price, F, K, r, t, flag);
                 } catch (err) {
                     iv_err = err.name;
                 }
 
-                var ref_iv_err = null
+                var js_ref_iv = null;
+                var ref_iv_err = null;
                 try {
-                    var js_ref_iv = js_ref_implied_volatility(js_ref_price, F, K, r, t, flag);
+                    js_ref_iv = js_ref_implied_volatility(js_ref_price, F, K, r, t, flag);
                 } catch (err) {
                     ref_iv_err = err.name;
                 }

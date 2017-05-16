@@ -25,8 +25,6 @@
 
     _brent.maxIter = 1000;
 
-    _brent.zero = 0;
-
     Helpers.binary_flag = {
       'c': 1,
       'p': -1
@@ -41,7 +39,10 @@
     };
 
     Helpers.norm_cdf = function(x) {
-      return js_lets_be_rational.norm_cdf(x);
+      var mean, stdev;
+      mean = 0.0;
+      stdev = 1.0;
+      return jStat.normal.cdf(x, mean, stdev);
     };
 
     Helpers.brent = function(func) {
@@ -64,7 +65,7 @@
           if (Math.abs(yMax) <= functionalValueAccuracy) {
             return max;
           } else if (yInitial * yMax < 0.0) {
-            return _brent(func, initial, max);
+            return _brent.getRoot(func, initial, max);
           }
           return false;
         }

@@ -10,7 +10,6 @@ class Helpers
 
   _brent = new Brent(0)
   _brent.maxIter = 1000
-  _brent.zero = 0
 
   @binary_flag: {'c':1,'p':-1}
 
@@ -56,7 +55,7 @@ class Helpers
         if Math.abs(yMax) <= functionalValueAccuracy
           return max
         else if yInitial * yMax < 0.0
-          return _brent(func, initial, max)
+          return _brent.getRoot(func, initial, max)
 
         return false
 
