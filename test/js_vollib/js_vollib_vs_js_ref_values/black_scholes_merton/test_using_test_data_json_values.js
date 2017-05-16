@@ -10,8 +10,6 @@
 
     var flags = ['c', 'p'];
 
-    var EPSILON = 0.001;
-
     QUnit.test("test_price", function () {
         flags.forEach(function (flag, flag_i) {
             test_data.data.forEach(function (values, index) {
@@ -25,7 +23,7 @@
                 var price = black_scholes_merton(flag, S, K, t, r, sigma, q);
                 var js_ref_price = js_ref_black_scholes_merton(flag, S, K, t, r, sigma, q);
 
-                assertEquals(js_ref_price, price, EPSILON);
+                assertEquals(js_ref_price, price, 1e-11);
 
             });
         });
@@ -33,6 +31,7 @@
 
     QUnit.test("test_implied_volatility", function () {
         flags.forEach(function (flag, flag_i) {
+            var epsilon = flag === 'c' ? 0.0001 : 0.001;
             test_data.data.forEach(function (values, index) {
                 var S = values[test_data.columns.indexOf('S')];
                 var K = values[test_data.columns.indexOf('K')];
@@ -47,7 +46,8 @@
                 var iv = implied_volatility(price, S, K, t, r, q, flag);
                 var js_ref_iv = js_ref_implied_volatility(js_ref_price, S, K, t, r, q, flag);
 
-                assertEquals(js_ref_iv, iv, EPSILON);
+
+                assertEquals(js_ref_iv, iv, epsilon);
 
             });
         });
