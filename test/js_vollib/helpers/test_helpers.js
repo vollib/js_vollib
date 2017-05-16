@@ -22,7 +22,7 @@
         z = -10.6305730761;
         actual = js_vollib.helpers.norm_cdf(z);
         expected = js_lets_be_rational.norm_cdf(z);//1.0739427439219852e-26;
-        assertEquals(actual, expected, 0);
+        assertEquals(actual, expected, 1e-41);
     });
 
 }).call(this);

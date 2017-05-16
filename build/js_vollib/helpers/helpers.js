@@ -37,7 +37,7 @@
       var mean, stdev;
       mean = 0.0;
       stdev = 1.0;
-      return jStat.normal.cdf(x, mean, stdev);
+      return 0.5 * Jmat.erfc(-(x - mean) / (stdev * Math.sqrt(2)));
     };
 
     Helpers.brent = function(func) {

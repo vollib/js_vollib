@@ -18,7 +18,7 @@
         flags.forEach(function(flag, flag_i){
             var value = analytical.delta(flag, F, K, t, r, sigma);
             var js_ref_value = js_ref_analytical.delta(flag, F, K, t, r, sigma);
-            assertEquals(value, js_ref_value, EPSILON);
+            assertEquals(value, js_ref_value, 1e-15);
         });
     });
 

@@ -20,6 +20,7 @@
                 var sigma = values[test_data.columns.indexOf('v')];
 
                 var F = S * Math.exp(r*t);
+                F = Math.round(F * 100) / 100;
 
                 var price = black(flag, F, K, t, r, sigma);
                 var js_ref_price = js_ref_black(flag, F, K, t, r, sigma);
@@ -32,7 +33,7 @@
 
     QUnit.test("test_implied_volatility", function () {
         flags.forEach(function (flag, flag_i) {
-            var epsilon = flag === 'c' ? 0.0001 : 0.0015;
+            var epsilon = flag === 'c' ? 0.0001 : 0.0012;
             test_data.data.forEach(function (values, index) {
                 var S = values[test_data.columns.indexOf('S')];
                 var K = values[test_data.columns.indexOf('K')];

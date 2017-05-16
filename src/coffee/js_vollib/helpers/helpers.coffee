@@ -22,20 +22,9 @@ class Helpers
   @norm_cdf: (x) ->
     mean = 0.0
     stdev = 1.0
-    return jStat.normal.cdf(x, mean, stdev)
+    return 0.5 * Jmat.erfc(-(x - mean) / (stdev * Math.sqrt(2)))
 
   @brent: (func) ->
-    #  scipy.optimize.brentq(
-    #    func,
-    #    a=1e-12,
-    #    b=100,
-    #    xtol=1e-15,
-    #    rtol=1e-15,
-    #    maxiter=1000,
-    #    full_output=False
-    #  )
-#    return _brent.getRoot(func, 0.01, 100.0)
-
     min = Helpers.BRENT_MIN
     max = Helpers.BRENT_MAX
     initial = min + 0.5 * (max - min)
