@@ -1,6 +1,7 @@
 
-function assertEquals(actual, expected, delta) {
-    var message = "Expected: ".concat(expected, "\ Actual: ", actual);
+function assertEquals(actual, expected, delta, message) {
+    message = message || "";
+    message = message.concat("Expected: ".concat(expected, "\ Actual: ", actual));
     if (isNaN(actual) && isNaN(expected)) {
         QUnit.assert.ok(true, message);
     } else {
