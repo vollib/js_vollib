@@ -1,10 +1,12 @@
 (function(){
 
     console.log("\n\nStart speed benchmarking (js_vollib.js_ref):");
+    var diff = 5;
     linspace(2, 6, 10).forEach(function(d, di){
 
         var n = parseInt(Math.pow(10, d));
-        var K = linspace(145, 150, n);
+        var K = linspace(105+diff+1, 110+diff, n);
+        diff += 5;
 
         var price = 0.001;
         var F = 100;
