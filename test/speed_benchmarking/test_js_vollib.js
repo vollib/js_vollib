@@ -1,6 +1,6 @@
 (function(){
 
-    console.log("\n\nStart speed benchmarking (js_vollib.js_ref)");
+    console.log("\n\nStart speed benchmarking (js_vollib)");
     linspace(2, 6, 10).forEach(function(d, di){
 
         var n = parseInt(Math.pow(10, d));
@@ -14,7 +14,7 @@
 
         var start = performance.now();
         K.forEach(function(k, ki){
-            js_vollib.js_ref.black.implied_volatility.implied_volatility(price, F, k, r, t, flag);
+            js_vollib.black.implied_volatility.implied_volatility(price, F, k, r, t, flag);
         });
         var end = performance.now();
 
