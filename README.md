@@ -6,19 +6,19 @@
     <!-- js_vollib dependencies -->
     
     <!-- brent : https://github.com/croquelois/rootFinder.git -->
-    <script type="text/javascript" src="../lib/rootFinder/rootFinder.js"></script>
+    <script type="text/javascript" src="lib/rootFinder/rootFinder.js"></script>
     
     <!-- Jmat : https://github.com/lvandeve/jmat.git -->
-    <script type="text/javascript" src="../lib/jmat/jmat.min.js"></script>
+    <script type="text/javascript" src="lib/jmat/jmat.min.js"></script>
     
     <!-- js_lets_be_rational : git@git.quantycarlo.biz:vollib/js_lets_be_rational.git-->
-    <script type="text/javascript" src="../lib/js_lets_be_rational/build/js_lets_be_rational.js"></script>
+    <script type="text/javascript" src="lib/js_lets_be_rational/build/js_lets_be_rational.js"></script>
 
     <!-- --- -->
    
    
     <!-- js_vollib -->
-    <script type="text/javascript" src="../build/js_vollib.js"></script>
+    <script type="text/javascript" src="build/js_vollib.js"></script>
     
     <!-- test_utils : linspace -->
     <script type="text/javascript" src="test/test_utils.js"></script>
