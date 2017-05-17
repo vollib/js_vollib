@@ -20,9 +20,11 @@ function assertImpliedVolatilityPUTValue(actual_iv, sigma_input, min_value, delt
 
 function linspace(start, end, size) {
     var step = (end-start)/(size-1);
-    var result = math.range(start, end, step).toArray();
-    if (result.length == size)
-        return result;
-    else
-        return result.concat(end);
+    var result_array = [];
+    result_array[0] = start;
+    for (i = 1; i < size-1; i++) {
+        result_array[i] = result_array[i-1] + step;
+    }
+    result_array[size-1] = end;
+    return result_array;
 }
