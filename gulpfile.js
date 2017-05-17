@@ -38,7 +38,7 @@ gulp.task('coffee', function () {
 });
 
 gulp.task('qunit', function () {
-    return gulp.src('test/**/*.html')
+    return gulp.src('test/**/test_runner.html')
         .pipe(qunit());
 });
 
